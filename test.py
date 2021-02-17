@@ -1,11 +1,23 @@
-import cv2
 import numpy as np
 
 a = cv2.imread(("OCR1.png"), cv2.IMREAD_GRAYSCALE)
-
 print(a.shape)
 
-print(a)
-def bilinear_interpolate(gray_np_image, np_p00, np_p10, np_p01, np_p11):
-    ans_image = np.zeros((max(np_p00[0], np_p10[0], np_p01[0], np_p11[0]), max(np_p00[1], np_p10[1], np_p01[1], np_p11[1])))
-    
+z = np.zeros((100, 100))
+
+p1 = (10, 10)
+p2 = (15, 90)
+p3 = (80, 7)
+p4 = (100, 100)
+
+def lll(_a, _z, _p1, _p2, _p3, _p4):
+    for i in range(1000):
+        for j in range(1000):
+            u = i / 1000
+            v = j / 1000
+            x = round((1 - u) * ((1 - v) * _p1[0] + v * _p2[0]) + u * ((1 - v) * _p3[0] + v * _p4[0]))
+            y = round((1 - u) * ((1 - v) * _p1[1] + v * _p2[1]) + u * ((1 - v) * _p3[1] + v * _p4[1]))
+            try:
+                _z[x][y] = _a[round(_a.shape[0] * u)][round(_a.shape[1] * v)]
+            except:
+                pass
