@@ -28,5 +28,5 @@ print(a[29][79])
 lll(a, z, p1, p2, p3, p4)
 print(z)
 
-_, z = cv2.threshold(z, 110, 255, cv2.THRESH_BINARY)
-cv2.imwrite("asd.png", z)
+# _, z = cv2.threshold(z, 110, 255, cv2.THRESH_BINARY)
+cv2.imwrite("asd1.png", z)
