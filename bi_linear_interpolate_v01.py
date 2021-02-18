@@ -3,11 +3,14 @@ import cv2
 
 
 def bilinear_interpolate(_np_gray_image, _p1, _p2, _p3, _p4): # p1: ll, p2: lh, p3: hl, p4: hh
-    ans = np.zeros((max(_p1[0], _p2[0], _p3[0], _p4[0]), max(_p1[1], _p2[1], _p3[1], _p4[1]), 2))
-    for i in range(1000):
-        for j in range(1000):
-            u = i / 1000
-            v = j / 1000
+    x_max = max(_p1[0], _p2[0], _p3[0], _p4[0])
+    y_max = max(_p1[1], _p2[1], _p3[1], _p4[1])
+    n = 2
+    ans = np.zeros((x_max, y_max , 2))
+    for i in range(x_max * n):
+        for j in range(y_max * n):
+            u = i / (x_max * n)
+            v = j / (y_max * n)
             x = round((1 - u) * ((1 - v) * _p1[0] + v * _p2[0]) + u * ((1 - v) * _p3[0] + v * _p4[0]))
             y = round((1 - u) * ((1 - v) * _p1[1] + v * _p2[1]) + u * ((1 - v) * _p3[1] + v * _p4[1]))
             try:
