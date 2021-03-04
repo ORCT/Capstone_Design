@@ -10,7 +10,6 @@ void setup()
     pinMode(6, OUTPUT);
     pinMode(7, OUTPUT);
     Serial.begin(9600);
-    Serial.println("Arduino is ready!");
 }
 
 void loop()
@@ -51,11 +50,12 @@ void loop()
         }
         else
         {
-            Serial.println('Unknown');
+            Serial.println('l');
             serData = "";
             delay(TIME_DELAY);
         }
     }
+    delay(10);
 }
 
 void func1(int _pin_num)
