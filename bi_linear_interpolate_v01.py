@@ -24,11 +24,16 @@ if __name__ == '__main__':
     image = cv2.imread(("OCR1.png"), cv2.IMREAD_GRAYSCALE)
     print(image.shape)
 
-    p1 = (10, 10)
-    p2 = (15, 90)
-    p3 = (80, 7)
-    p4 = (100, 100)
+    x, y = image.shape
+
+    n = 40
+    l = int(y * 0.5776 * n / x)
+
+    p1 = (0, 0)
+    p2 = (0, l)
+    p3 = (int(9.2307 * n), int(l / 2 - y / 2))
+    p4 = (int(9.2307 * n), int(l / 2 + y / 2))
     print(image[29][79])
     name = bilinear_interpolate(image, p1, p2, p3, p4)
-
+    print(name.shape)
     cv2.imwrite("asd2.png", name)
