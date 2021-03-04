@@ -1,6 +1,6 @@
 {
+    "port": "COM7",
+    "programmer": "AVR ISP",
     "board": "arduino:avr:leonardo",
-    "port": "COM6",
-    "sketch": "test1.ino",
-    "programmer": "AVR ISP"
+    "sketch": "test1\\test1.ino"
 }
