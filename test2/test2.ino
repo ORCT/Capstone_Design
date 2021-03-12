@@ -4,8 +4,11 @@ const int TIME_DELAY = 10;
 //전역형 선언자리
 String ser_data;
 
+
+
 void setup()
 {
+    
     pinMode(2, OUTPUT);
     pinMode(3, OUTPUT);
     pinMode(4, OUTPUT);
