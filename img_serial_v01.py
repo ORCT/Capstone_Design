@@ -111,10 +111,19 @@ def conv_ser_deque_to_img(ser_deque, img_shape):
 
 if __name__ == "__main__":
     img = cv2.imread('no1.jpg', cv2.IMREAD_GRAYSCALE)
-    img = cv2.resize(img, (0, 0), fx=0.05, fy=0.05)
+    img = cv2.resize(img, (0, 0), fx=0.5, fy=0.5)
     _, img = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY)
-    cv2.imwrite('test2.png', img)
+    cv2.imwrite('test1.png', img)
     serial_deque = conv_img_to_ser_deque(img)
 
+    for i in serial_deque:
+        print(i, end=' ')
+
     conv_img = conv_ser_deque_to_img(serial_deque, img.shape)
-    cv2.imwrite('test1.png', conv_img)
+    cv2.imwrite('test2.png', conv_img)
+
+    n, m = img.shape
+    for i in range(n):
+        for j in range(m):
+            if img[i][j] != conv_img[i][j]:
+                print('False', i, j)
