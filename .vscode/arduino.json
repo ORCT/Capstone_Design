@@ -1,6 +1,6 @@
 {
-    "port": "COM6",
+    "port": "COM13",
     "programmer": "AVR ISP",
     "board": "arduino:avr:leonardo",
-    "sketch": "test3/test3.ino"
+    "sketch": "motor_test2/motor_test2.ino"
 }

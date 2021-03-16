@@ -6,7 +6,7 @@ def interact_ser(_str, _ard):
     print(tmp.decode())
 
 if __name__ == "__main__":
-    port = 'COM7' #변동가능
+    port = 'COM13' #변동가능
     ard = serial.Serial(port, 9600)
 
     while True:
