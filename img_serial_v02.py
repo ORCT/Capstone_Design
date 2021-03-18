@@ -6,12 +6,13 @@
 # - r -> right mov
 # - l -> left mov
 # - d -> down mov
+# - ` -> end sub serial bundle
 # * But 'p' and 'P' hasn't second string. 
 #
 # 3. Second string is a integer number.
 #
 # * So, protocol has the following forms.
-# ['p', 'r', '23', 'P', 'r', '2', 'd', '1', 'P', 'l', '23', ...]
+# ['p', 'r', '23', `, 'P', 'r', '2', `, 'd', '1', `, 'P', 'l', '23', `, ...]
 #
 #
 
@@ -83,6 +84,7 @@ def conv_img_to_ser_deque(img):
             col += 1
         ans_deque.append('d')
         ans_deque.append('1')
+        ans_deque.append('`')
     return ans_deque
 
 def conv_ser_deque_to_img(ser_deque, img_shape):
