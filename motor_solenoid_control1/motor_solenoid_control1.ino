@@ -11,13 +11,12 @@
 #define MAX_REPOS 7
 
 const int MOTOR_DELAY = 1000;
-const int TIME_DELAY = 100;
+const int SERIAL_TIME_DELAY = 10;
 
-const int TIME_DELAY = 10;
 String ser_data;
 char num_repos[MAX_REPOS];
 int num_repos_iter = 0;
-int dir_flag = 0;
+char dir_flag;
 
 void setup()
 {
@@ -52,17 +51,17 @@ void loop()
         else if (rec == 'r')
         {
             Serial.println(ser_data);
-            digitalWrite(X_DIR_PIN, HIGH);
+            dir_flag = 'r';
         }
         else if (rec == 'l')
         {
             Serial.println(ser_data);
-            digitalWrite(X_STEP_PIN, LOW);
+            dir_flag = 'l';
         }
         else if (rec == 'd')
         {
             Serial.println(ser_data);
-            dir_flag = 2;
+            dir_flag = 'd';
         }
 
         else if (isdigit(rec) != 0)
@@ -74,6 +73,20 @@ void loop()
         else if (rec == '`')
         {
             int tmp = atoi(num_repos);
+            if(dir_flag == 'r')
+            {
+                ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, tmp);
+            }
+            else if(dir_flag == 'l')
+            {
+                ctrl_motor(X_DIR_PIN, X_STEP_PIN, LOW, tmp);
+            }
+            else if(dir_flag == 'd')
+            {
+                ctrl_motor(Y_DIR_PIN, Y_STEP_PIN, HIGH, tmp);
+            }
+
+
             Serial.println(tmp);
             for(int i = 0; i < MAX_REPOS; ++i)
             {
@@ -87,11 +100,25 @@ void loop()
         }
 
         ser_data = "";
-        delay(TIME_DELAY);
+        delay(SERIAL_TIME_DELAY);
     }
 }
 
-void ctrl_solenoid()
+void ctrl_motor(int motor_dir_pin, int motor_step_pin, int motor_dir, int motor_step)
 {
-
+    if(motor_dir == HIGH)
+    {
+        digitalWrite(motor_dir_pin, HIGH);
+    }
+    else
+    {
+        digitalWrite(motor_dir_pin, LOW);
+    }
+    for(int i = 0; i < motor_step; ++i)
+    {
+        digitalWrite(motor_step_pin, HIGH);
+        delayMicroseconds(MOTOR_DELAY);
+        digitalWrite(motor_step_pin, LOW);
+        delayMicroseconds(MOTOR_DELAY);
+    }
 }

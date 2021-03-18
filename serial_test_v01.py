@@ -6,12 +6,12 @@ def interact_ser(_str, _ard):
     print(tmp.decode())
 
 if __name__ == "__main__":
-    port = 'COM13' #변동가능
+    port = 'COM6' #변동가능
     ard = serial.Serial(port, 9600)
 
     while True:
         send_str = input()
-        if send_str == '1':
+        if send_str == '-':
             break
         else:
             interact_ser(send_str, ard)
