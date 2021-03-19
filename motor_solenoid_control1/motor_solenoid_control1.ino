@@ -42,11 +42,13 @@ void loop()
         {
             Serial.println(ser_data);
             digitalWrite(SOLENOID_PIN, HIGH);
+            delay(100);
         }
         else if (rec == 'P')
         {
             Serial.println(ser_data);
             digitalWrite(SOLENOID_PIN, LOW);
+            delay(100);
         }
         else if (rec == 'r')
         {
