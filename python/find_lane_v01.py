@@ -293,8 +293,8 @@ def annotate_video(input_file, output_file):
 
 # Main script
 if __name__ == '__main__':
-	input_file = "challenge.mp4"
-	output_file = "test1.mp4"
+	input_file = "python/test1.jpg"
+	output_file = "python/out.jpg"
 	try:
 		annotate_image(input_file, output_file)
 	except:
