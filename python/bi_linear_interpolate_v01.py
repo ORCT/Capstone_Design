@@ -21,19 +21,29 @@ def bilinear_interpolate(_np_gray_image, _p1, _p2, _p3, _p4): # p1: ll, p2: lh, 
     return ans[:, :, 0]
 
 if __name__ == '__main__':
-    image = cv2.imread(("OCR1.png"), cv2.IMREAD_GRAYSCALE)
-    print(image.shape)
+    image = cv2.imread(("python/test3.png"), cv2.IMREAD_GRAYSCALE)
+    image = 255 - image
+    img_y, img_x = image.shape
+    print(img_x, img_y)
 
-    x, y = image.shape
+    a = 2000
+    h = 130
+    y = 39
 
-    n = 40
-    l = int(y * 0.5776 * n / x)
+    image = cv2.resize(image, dsize=(0, 0), fx=y / img_y, fy=y / img_y, interpolation=cv2.INTER_LINEAR)
+    img_y, img_x = image.shape
+    x = img_x
+    Y = int(a * y / (h - y))
+    X = int(x * (Y + a) / a)
+    print(X, Y)
+    print(img_x, img_y)
 
     p1 = (0, 0)
-    p2 = (0, l)
-    p3 = (int(9.2307 * n), int(l / 2 - y / 2))
-    p4 = (int(9.2307 * n), int(l / 2 + y / 2))
-    print(image[29][79])
+    p2 = (0,    X)
+    p3 = (Y, X // 2 - img_x // 2)
+    p4 = (Y, X // 2 + img_x // 2)
     name = bilinear_interpolate(image, p1, p2, p3, p4)
-    print(name.shape)
-    cv2.imwrite("asd2.png", name)
+    _, name = cv2.threshold(name, 100, 255, cv2.THRESH_BINARY)
+    name = cv2.GaussianBlur(name, (3,3), 0)
+    _, name = cv2.threshold(name, 1, 255, cv2.THRESH_BINARY)
+    cv2.imwrite("python/output3.png", name)

@@ -10,7 +10,7 @@
 
 #define MAX_REPOS 7
 
-const int MOTOR_DELAY = 1000;
+const int MOTOR_DELAY = 1500;
 const int SERIAL_TIME_DELAY = 10;
 
 String ser_data;
@@ -42,13 +42,13 @@ void loop()
         {
             Serial.println(ser_data);
             digitalWrite(SOLENOID_PIN, HIGH);
-            delay(100);
+            delay(700);
         }
         else if (rec == 'P')
         {
             Serial.println(ser_data);
             digitalWrite(SOLENOID_PIN, LOW);
-            delay(100);
+            delay(700);
         }
         else if (rec == 'r')
         {
@@ -88,13 +88,17 @@ void loop()
                 ctrl_motor(Y_DIR_PIN, Y_STEP_PIN, HIGH, tmp);
             }
 
-
             Serial.println(tmp);
-            for(int i = 0; i < MAX_REPOS; ++i)
+            if(dir_flag != '\0')
             {
-                num_repos[i] = '\0';
+                for(int i = 0; i < MAX_REPOS; ++i)
+                {
+                    num_repos[i] = '\0';
+                }
+                num_repos_iter = 0;
             }
-            num_repos_iter = 0;
+
+            dir_flag = '\0';
         }
         else
         {
@@ -116,7 +120,7 @@ void ctrl_motor(int motor_dir_pin, int motor_step_pin, int motor_dir, int motor_
     {
         digitalWrite(motor_dir_pin, LOW);
     }
-    for(int i = 0; i < motor_step; ++i)
+    for(int i = 0; i < motor_step * 2; ++i)
     {
         digitalWrite(motor_step_pin, HIGH);
         delayMicroseconds(MOTOR_DELAY);

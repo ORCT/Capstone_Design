@@ -7,12 +7,12 @@
 # - l -> left mov
 # - d -> down mov
 # - ` -> end sub serial bundle
-# * But 'p' and 'P' hasn't second string. 
+# * But 'p' and 'P' hasn't number string. 
 #
 # 3. Second string is a integer number.
 #
 # * So, protocol has the following forms.
-# ['p', 'r', '23', `, 'P', 'r', '2', `, 'd', '1', `, 'P', 'l', '23', `, ...]
+# ['p', `, 'r', '23', `, 'P', `, 'r', '2', `, 'd', '1', `, 'P', `, 'l', '23', `, ...]
 #
 #
 
@@ -39,6 +39,7 @@ def conv_img_to_ser_deque(img):
                         ans_deque.append(str(cnt))
                         ans_deque.append('`')
                     ans_deque.append('P')
+                    ans_deque.append('`')
                     ans_deque.append('r')
                     cnt = 1
                     flag = 0
@@ -49,6 +50,7 @@ def conv_img_to_ser_deque(img):
                         ans_deque.append(str(cnt))
                         ans_deque.append('`')
                     ans_deque.append('p')
+                    ans_deque.append('`')
                     ans_deque.append('r')
                     cnt = 1
                     flag = 1
@@ -62,6 +64,7 @@ def conv_img_to_ser_deque(img):
                         ans_deque.append(str(cnt))
                         ans_deque.append('`')
                     ans_deque.append('P')
+                    ans_deque.append('`')
                     ans_deque.append('l')
                     cnt = 1
                     flag = 0
@@ -72,12 +75,14 @@ def conv_img_to_ser_deque(img):
                         ans_deque.append(str(cnt))
                         ans_deque.append('`')
                     ans_deque.append('p')
+                    ans_deque.append('`')
                     ans_deque.append('l')
                     cnt = 1
                     flag = 1
         if cnt == n:
             ans_deque.pop()
             ans_deque.pop()
+            ans_deque.append('`')
         else:
             ans_deque.append(str(cnt))
             ans_deque.append('`')
@@ -98,8 +103,10 @@ def conv_ser_deque_to_img(ser_deque, img_shape):
             y += int(ser_deque.popleft())
         elif tmp == 'p':
             solenoid_state = 1
+            ser_deque.popleft()
         elif tmp == 'P':
             solenoid_state = 0
+            ser_deque.popleft()
         elif tmp == 'r':
             r_mov_dis = int(ser_deque.popleft())
             _ = ser_deque.popleft()
