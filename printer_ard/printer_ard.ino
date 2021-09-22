@@ -14,12 +14,12 @@
 #include<stdlib.h>
 #define LIMIT_PIN 9
 #define SOLENOID_PIN 8
-#define X_DIR_PIN 7
-#define X_STEP_PIN 6
-#define Y_DIR_PIN1 5
-#define Y_STEP_PIN1 4
-#define Y_DIR_PIN2 3
-#define Y_STEP_PIN2 2
+#define X_STEP_PIN 7
+#define X_DIR_PIN 6
+#define Y_STEP_PIN1 5
+#define Y_DIR_PIN1 4
+#define Y_STEP_PIN2 3
+#define Y_DIR_PIN2 2
 
 bool SOL_init = 0;
 
