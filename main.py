@@ -24,7 +24,7 @@ X = int(x * (Y + a) / a)
 print(X, Y)
 print(img_x, img_y)
 
-if X >= 10: # 제한 크기
+if X >= 1000: # 제한 크기
     raise Exception("X-axis limit")
 
 p1 = (0, 0)
@@ -49,7 +49,7 @@ def interact_ser(_str, _ard):
     print(tmp.decode())
     
 if __name__ == "__main__":
-    port = 'COM10'  # 변동가능
+    port = 'COM11'  # 변동가능
     ard = serial.Serial(port, 9600)
     time.sleep(2)
 

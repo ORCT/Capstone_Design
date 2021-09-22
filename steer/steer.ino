@@ -76,7 +76,6 @@ void loop()
             Serial.println("U");
         }
         ser_data = "";
-        delay(1);
     }
 }
 
