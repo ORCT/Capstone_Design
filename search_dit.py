@@ -142,13 +142,13 @@ def conv_img_to_delta(image):
 #camera
 
 #window
-port = 'COM11'  # 변동가능
+port = 'COM5'  # 변동가능
 
 #ras
 #port = "/dev/ttyACM0"
 
 ard = serial.Serial(port, 9600)
-time.sleep(3)
+time.sleep(1)
 
 #ras
 #camera = PiCamera()
@@ -176,7 +176,7 @@ while int_delta != 0 or start_flag == 0:
         int_delta = conv_img_to_delta(image)
     except:
         _ = 1
-    int_delta = 190
+    int_delta = 4000
     str_delta = str(int_delta)
 
     serial_deque = deque([])
@@ -184,15 +184,16 @@ while int_delta != 0 or start_flag == 0:
     if int_delta < 0:
         int_delta = abs(int_delta)
         str_delta = str(int_delta)
-        serial_deque = deque(['-', str_delta, '`'])
+        serial_deque = deque(['-',str_delta,'`'])
     else:
         str_delta = str(int_delta)
-        serial_deque = deque(['+', str_delta, '`'])
+        serial_deque = deque(['+',str_delta,'`'])
 
     #print(row_delta)
     #print(serial_deque)
     # serial communicate with arduino
     
+
     for i in serial_deque:
         interact_ser(i, ard)
 

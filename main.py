@@ -4,6 +4,7 @@ import numpy as np
 import serial
 import time
 import pyautogui
+from collections import deque
 
 n = '8'
 
@@ -24,7 +25,7 @@ X = int(x * (Y + a) / a)
 print(X, Y)
 print(img_x, img_y)
 
-if X >= 1000: # 제한 크기
+if X >= 195: # 제한 크기
     raise Exception("X-axis limit")
 
 p1 = (0, 0)
@@ -41,13 +42,18 @@ _, img = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY)
 cv2.imwrite("output" + n + ".png", img)
 serial_deque = printer.conv_img_to_ser_deque(img)
 
-print(serial_deque)
+serial_deque.appendleft('`')
+serial_deque.appendleft('5')
+serial_deque.appendleft('r')
+serial_deque.appendleft('`')
+serial_deque.appendleft('i')
 
 def interact_ser(_str, _ard):
     _ard.write(_str.encode())
     tmp = _ard.readline()
     print(tmp.decode())
     
+
 if __name__ == "__main__":
     port = 'COM11'  # 변동가능
     ard = serial.Serial(port, 9600)

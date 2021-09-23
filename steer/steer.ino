@@ -73,7 +73,7 @@ void loop()
         }
         else
         {
-            Serial.println("U");
+            Serial.println('!');
         }
         ser_data = "";
     }
