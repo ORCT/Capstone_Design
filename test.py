@@ -41,7 +41,36 @@ def conv_img2ser(_img):
         ans1.append('`')
         y += 1
         
-    return ans1
+        
+    ans1 = deque(ans1)
+    ans2 = []
+    while ans1:
+        tmp = ans1.popleft()
+        try:
+            if tmp == 'r' and ans1[2] == 'r':
+                down_num = int(ans1[0])
+                ans1.popleft()
+                ans1.popleft()
+                ans1[1] = str(down_num + 1)
+                
+            elif tmp == 'l' and ans1[2] == 'l':
+                down_num = int(ans1[0])
+                ans1.popleft()
+                ans1.popleft()
+                ans1[1] = str(down_num + 1)
+                
+            elif tmp == 'd' and ans1[2] == 'd':
+                down_num = int(ans1[0])
+                ans1.popleft()
+                ans1.popleft()
+                ans1[1] = str(down_num + 1)
+            else:
+                ans2.append(tmp)
+                
+        except:
+            ans2.append(tmp)
+        
+    return ans2
 
 def conv_ser2img(_ser, _img_shape):
     ans = np.zeros(_img_shape)
