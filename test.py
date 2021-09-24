@@ -103,7 +103,7 @@ def conv_ser2img(_ser, _img_shape):
     
     return ans
         
-n = '10'        
+n = '9'
 
 a = load_image("input" + n + ".png", 'w')
 

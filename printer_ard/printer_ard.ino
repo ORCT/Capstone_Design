@@ -10,8 +10,7 @@
 //R모터: DRV8825
 //0.16A, 1.198k옴
 
-#include<ctype.h>
-#include<stdlib.h>
+
 #define LIMIT_PIN 9
 #define SOLENOID_PIN 8
 #define X_STEP_PIN 7
@@ -23,15 +22,12 @@
 
 bool SOL_init = 0;
 
-#define MAX_REPOS 7
-
-char num_repos[MAX_REPOS];
-int num_repos_iter = 0;
-char dir_flag = '\0';
-
 const int MOTOR_DELAY = 1000;
 
-String ser_data = "";
+const int maxChar = 15;
+char charVal[maxChar];
+int charIter = 0;
+
 
 void setup()
 {
@@ -42,102 +38,83 @@ void setup()
     pinMode(6, OUTPUT);
     pinMode(7, OUTPUT);
     pinMode(8, OUTPUT);
-
     pinMode(9, INPUT);
     Serial.begin(9600);
 }
 
 void loop()
 {
-    while(Serial.available() > 0)
+    if(Serial.available() > 0)
     {
-        char rec = Serial.read();
-        ser_data += rec;
-        
-        //실행 영역
+        char a = Serial.read();
+        if(a == '`')
+        {
+            processSerial();
+            Serial.println(charVal);
 
-        if (rec == 'p')
-        {
-            Serial.println(ser_data);
-            digitalWrite(SOLENOID_PIN, HIGH);
-            delay(100);
-        }
-        else if (rec == 'P')
-        {
-            Serial.println(ser_data);
-            digitalWrite(SOLENOID_PIN, LOW);
-            delay(70);
-        }
-        else if (rec == 'd')
-        {
-            Serial.println(ser_data);
-            dir_flag = 'd';
-        }
-        else if (rec == 'u')
-        {
-            Serial.println(ser_data);
-            dir_flag = 'u';
-        }
-        else if (rec == 'r')
-        {
-            Serial.println(ser_data);
-            dir_flag = 'r';
-        }
-        else if (rec == 'l')
-        {
-            Serial.println(ser_data);
-            dir_flag = 'l';
-        }
-        else if (rec == 'i')
-        {
-            Serial.println(ser_data);
-            act_limit();
-        }
-        else if (isdigit(rec) != 0)
-        {
-            Serial.println(ser_data);
-            num_repos[num_repos_iter] = rec;
-            num_repos_iter += 1;
-        }
-        else if (rec == '`')
-        {
-            int tmp = atoi(num_repos) * 3;
-            
-            if (dir_flag == 'd')
+            //initializing part
+            for(int i = 0; i < maxChar; ++i)
             {
-                ctrl_Y_motor_d(Y_DIR_PIN1, Y_DIR_PIN2, Y_STEP_PIN1, Y_STEP_PIN2, tmp);
+                charVal[i] = '\0';
             }
-            else if (dir_flag == 'u')
-            {
-                ctrl_Y_motor_u(Y_DIR_PIN1, Y_DIR_PIN2, Y_STEP_PIN1, Y_STEP_PIN2, tmp);
-            }
-            else if (dir_flag == 'r')
-            {
-                ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, tmp);
-            }
-            else if (dir_flag == 'l')
-            {
-                ctrl_motor(X_DIR_PIN, X_STEP_PIN, LOW, tmp);
-            }
-
-            Serial.println(tmp);
-            
-            for(int i = 0; i < MAX_REPOS; ++i)
-            {
-                num_repos[i] = '\0';
-            }
-            dir_flag = '\0';
-            num_repos_iter = 0;
+            charIter = 0;
         }
         else
         {
-            Serial.println("U");
+            charVal[charIter] = a;
+            charIter += 1;
         }
-        ser_data = "";
-        delay(1);
     }
 }
 
+int pick_integer(char* str) 
+{ /* 문자열에서 숫자만 추출하는 함수 */
+	int num=0, plus=0;
+	
+	for(int i=0; i < maxChar; i++)
+    { //문자열의 길이만큼 반복
+        if(str[i] > 47 && str[i] < 58) 
+        {num = num*10 + str[i]-48;}		
+	}
+    return num;
+}
+
+void processSerial()
+{
+    char decision = charVal[0];
+    int tmpInt = pick_integer(charVal);
+
+    if(decision == 'p')
+    {
+        digitalWrite(SOLENOID_PIN, HIGH);
+        delay(100);
+    }
+    else if(decision == 'P')
+    {
+        digitalWrite(SOLENOID_PIN, LOW);
+        delay(70);
+    }
+    else if(decision == 'd')
+    {
+        ctrl_Y_motor_d(Y_DIR_PIN1, Y_DIR_PIN2, Y_STEP_PIN1, Y_STEP_PIN2, tmpInt);
+    }
+    else if(decision == 'u')
+    {
+        ctrl_Y_motor_u(Y_DIR_PIN1, Y_DIR_PIN2, Y_STEP_PIN1, Y_STEP_PIN2, tmpInt);
+    }
+    else if(decision == 'r')
+    {
+        ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, tmpInt);
+    }
+    else if(decision == 'l')
+    {
+         ctrl_motor(X_DIR_PIN, X_STEP_PIN, LOW, tmpInt);
+    }
+    else if(decision == 'i')
+    {
+        act_limit();
+    }
+}
 
 void ctrl_motor(int motor_dir_pin, int motor_step_pin, int motor_dir, int motor_step)
 {
@@ -199,7 +176,7 @@ void act_limit()
         }
         else
         {
-            ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, 1);
+            ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, 10);
             SOL_init = 1;
         }
     }
