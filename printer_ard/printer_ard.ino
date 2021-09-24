@@ -87,7 +87,7 @@ void processSerial()
     if(decision == 'p')
     {
         digitalWrite(SOLENOID_PIN, HIGH);
-        delay(100);
+        delay(200);
     }
     else if(decision == 'P')
     {
@@ -126,7 +126,7 @@ void ctrl_motor(int motor_dir_pin, int motor_step_pin, int motor_dir, int motor_
     {
         digitalWrite(motor_dir_pin, LOW);
     }
-    for(int i = 0; i < motor_step * 2; ++i)
+    for(int i = 0; i < motor_step * 4; ++i)
     {
         digitalWrite(motor_step_pin, HIGH);
         delayMicroseconds(MOTOR_DELAY);
@@ -139,7 +139,7 @@ void ctrl_Y_motor_d(int motor_dir_pin1, int motor_dir_pin2, int motor_step_pin1,
 {
     digitalWrite(motor_dir_pin1, HIGH);
     digitalWrite(motor_dir_pin2, LOW);
-    for(int i = 0; i < motor_step; ++i)
+    for(int i = 0; i < motor_step * 3; ++i)
     {
         digitalWrite(motor_step_pin1, HIGH);
         digitalWrite(motor_step_pin2, HIGH);
@@ -154,7 +154,7 @@ void ctrl_Y_motor_u(int motor_dir_pin1, int motor_dir_pin2, int motor_step_pin1,
 {
     digitalWrite(motor_dir_pin1, LOW);
     digitalWrite(motor_dir_pin2, HIGH);
-    for(int i = 0; i < motor_step; ++i)
+    for(int i = 0; i < motor_step * 3; ++i)
     {
         digitalWrite(motor_step_pin1, HIGH);
         digitalWrite(motor_step_pin2, HIGH);
@@ -176,7 +176,7 @@ void act_limit()
         }
         else
         {
-            ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, 10);
+            ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, 30);
             SOL_init = 1;
         }
     }

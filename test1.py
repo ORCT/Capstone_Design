@@ -103,14 +103,19 @@ def conv_ser2img(_ser, _img_shape):
     
     return ans
         
-a = load_image("output8.png", 'w')
+a = load_image("input8.png", 'b')
+a = cv2.flip(a, 1)
 
 print(a.shape)
-ser = conv_img2ser(a)
-print(ser)
-img = conv_ser2img(ser, a.shape)
+ser = printer.conv_img_to_ser_deque(a)
 
-ser = ['i', '`', 'r', '5', '`'] + ser
+ser.appendleft('`')
+ser.appendleft('5')
+ser.appendleft('r')
+ser.appendleft('`')
+ser.appendleft('i')
+
+print(ser)
 
 cv2.imwrite("test.png", a)
 cv2.imwrite("test_conv.png", a)

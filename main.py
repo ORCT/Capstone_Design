@@ -40,6 +40,9 @@ _, img = cv2.threshold(name, 1, 255, cv2.THRESH_BINARY)
 img = cv2.resize(img, (0, 0), fx=1, fy=1)
 _, img = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY)
 cv2.imwrite("output" + n + ".png", img)
+
+img = cv2.flip(img, 1)
+
 serial_deque = printer.conv_img_to_ser_deque(img)
 
 serial_deque.appendleft('`')
@@ -55,7 +58,7 @@ def interact_ser(_str, _ard):
     
 
 if __name__ == "__main__":
-    port = 'COM11'  # 변동가능
+    port = 'COM12'  # 변동가능
     ard = serial.Serial(port, 9600)
     time.sleep(2)
 
