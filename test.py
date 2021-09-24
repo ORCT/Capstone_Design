@@ -20,7 +20,6 @@ def conv_img2ser(_img):
     
     for i in range(Y - 1):
         for j in range(X - 1):
-            print(y, x)
             if _img[y, x] == 255:
                 ans1.append('p')
                 ans1.append('`')
@@ -42,57 +41,26 @@ def conv_img2ser(_img):
         ans1.append('`')
         y += 1
         
-    ans1 = deque(ans1)
-    ans2 = []
-    while ans1:
-        tmp = ans1.popleft()
-        try:
-            if tmp == 'd' and ans1[4] == 'd':
-                down_num = int(ans1[0])
-                ans1.popleft()
-                ans1.popleft()
-                ans1.popleft()
-                ans1.popleft()
-                ans1[1] = str(down_num + 1)
-            else:
-                ans2.append(tmp)
-                
-            if tmp == 'r' and ans1[4] == 'r':
-                right_num = int(ans1[0])
-                ans1.popleft()
-                ans1.popleft()
-                ans1.popleft()
-                ans1.popleft()
-                ans1[1] = str(right_num + 1)
-            else:
-                ans2.append(tmp)
-
-            if tmp == 'l' and ans1[4] == 'l':
-                left_num = int(ans1[0])
-                ans1.popleft()
-                ans1.popleft()
-                ans1.popleft()
-                ans1.popleft()
-                ans1[1] = str(left_num + 1)
-            else:
-                ans2.append(tmp)
-        except:
-            ans2.append(tmp)
-    return ans2
+    return ans1
 
 def conv_ser2img(_ser, _img_shape):
     ans = np.zeros(_img_shape)
     x, y = 0, 0
     
-    for i in range(len(_ser)):
+    i = 0
+    while i < len(_ser):
         if _ser[i] == 'p':
             ans[y, x] = 255
         elif _ser[i] == 'r':
-            x += 1
+            i += 1
+            x += int(_ser[i])
         elif _ser[i] == 'l':
-            x -= 1 
+            i += 1
+            x -= int(_ser[i])
         elif _ser[i] == 'd':
-            y += 1
+            i += 1
+            y += int(_ser[i])
+        i += 1
     
     return ans
         
@@ -103,9 +71,12 @@ a = load_image("input" + n + ".png", 'w')
 print(a.shape)
 
 ser = conv_img2ser(a)
-img = conv_ser2img(ser, a.shape)
+
 
 print(ser)
+
+img = conv_ser2img(ser, a.shape)
+
 
 cv2.imwrite("test.png", a)
 cv2.imwrite("test_conv.png", a)
