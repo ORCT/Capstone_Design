@@ -1,6 +1,10 @@
 import cv2
 import numpy as np
 from collections import deque
+import printer
+import serial
+import time
+import pyautogui
 
 # _state: 글자 색 상태
 
@@ -18,13 +22,14 @@ def conv_img2ser(_img):
     
     init_loc = [0, 0]
     
+    if _img[0, 0] == 255:
+        ans1.append('p')
+        ans1.append('`')
+        ans1.append('P')
+        ans1.append('`')
+    
     for i in range(Y - 1):
         for j in range(X - 1):
-            if _img[y, x] == 255:
-                ans1.append('p')
-                ans1.append('`')
-                ans1.append('P')
-                ans1.append('`')
             if y % 2 == 0:
                 ans1.append('r')
                 ans1.append('1')
@@ -35,6 +40,11 @@ def conv_img2ser(_img):
                 ans1.append('1')
                 ans1.append('`')
                 x -= 1
+            if _img[y, x] == 255:
+                ans1.append('p')
+                ans1.append('`')
+                ans1.append('P')
+                ans1.append('`')
                 
         ans1.append('d')
         ans1.append('1')
@@ -93,19 +103,27 @@ def conv_ser2img(_ser, _img_shape):
     
     return ans
         
-n = '9'        
+n = '10'        
 
 a = load_image("input" + n + ".png", 'w')
 
 print(a.shape)
-
 ser = conv_img2ser(a)
-
-
 print(ser)
-
 img = conv_ser2img(ser, a.shape)
 
+ser = ['i', '`', 'r', '5', '`'] + ser
 
 cv2.imwrite("test.png", a)
 cv2.imwrite("test_conv.png", a)
+
+if __name__ == "__main__":
+    port = 'COM12'  # 변동가능
+    ard = serial.Serial(port, 9600)
+    time.sleep(2)
+
+    for i in ser:
+        if list(pyautogui.position()) != [0, 0]:
+            printer.interact_ser(i, ard)
+
+    ard.close()
