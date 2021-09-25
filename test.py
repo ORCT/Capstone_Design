@@ -55,18 +55,20 @@ def conv_img2ser(_img):
                     _r_max = X - 1 - i
                     break
             
-            if _r_max == _l_max:
-                ans1.append('p')
-                ans1.append('`')
-                ans1.append('P')
-                ans1.append('`')
+            _r_dis = abs(x - _r_max)
+            _l_dis = abs(x - _l_max)
             
-            elif _r_max - x > x - _l_max:
-                if x - _l_max != 0:
+            if _r_dis >= _l_dis:
+                if x - _l_max > 0:
                     ans1.append('l')
                     ans1.append(str(x - _l_max))
                     ans1.append('`')
-                    x = _l_max
+                elif x - _l_max < 0:
+                    ans1.append('r')
+                    ans1.append(str(_l_max - x))
+                    ans1.append('`')
+                x = _l_max
+                    
                 
                 _push_flag = 0
                 
@@ -108,12 +110,16 @@ def conv_img2ser(_img):
                         ans1.pop()
                         break
                 
-            else:
-                if _r_max - x != 0:
+            elif _r_dis < _l_dis:
+                if _r_max - x > 0:
                     ans1.append('r')
                     ans1.append(str(_r_max - x))
                     ans1.append('`')
-                    x = _r_max
+                elif _r_max - x < 0:
+                    ans1.append('l')
+                    ans1.append(str(x - _r_max))
+                    ans1.append('`')
+                x = _r_max
                 
                 _push_flag = 0
                 
@@ -190,28 +196,58 @@ def conv_img2ser(_img):
 def conv_ser2img(_ser, _img_shape):
     ans = np.zeros(_img_shape)
     x, y = 0, 0
-    
     i = 0
-    while i < len(_ser):
-        if _ser[i] == 'p':
-            ans[y, x] = 255
-        elif _ser[i] == 'r':
-            i += 1
-            x += int(_ser[i])
-        elif _ser[i] == 'l':
-            i += 1
-            x -= int(_ser[i])
-        elif _ser[i] == 'd':
-            i += 1
-            y += int(_ser[i])
-        i += 1
     
+    push_flag = 0
+    dir_flag = ''
+    while i < len(_ser):
+        tmp = _ser[i]
+        if tmp == 'p':
+            ans[y, x] = 255
+            push_flag = 1
+        elif tmp == 'P':
+            push_flag = 0
+        elif tmp == 'd':
+            dir_flag = 'd'
+        elif tmp == 'r':
+            dir_flag = 'r'
+        elif tmp == 'l':
+            dir_flag = 'l'
+        elif tmp.isdigit():
+            tmp = int(tmp)
+            if dir_flag == 'd':
+                if push_flag == 0:
+                    y += tmp
+                elif push_flag == 1:
+                    for _ in range(tmp):
+                        y += 1
+                        ans[y, x] = 255
+            
+            elif dir_flag == 'r':
+                if push_flag == 0:
+                    x += tmp
+                elif push_flag == 1:
+                    for _ in range(tmp):
+                        x += 1
+                        ans[y, x] = 255
+                
+            elif dir_flag == 'l':
+                if push_flag == 0:
+                    x -= tmp
+                elif push_flag == 1:
+                    for _ in range(tmp):
+                        x -= 1
+                        ans[y, x] = 255
+            
+            dir_flag = ''
+        elif tmp == '`':
+            _ = 1
+        i += 1
     return ans
-        
         
 ### main        
 
-a = load_image("input9.png", 'w')
+a = load_image("input8.png", 'b')
 
 print(a.shape)
 ser = conv_img2ser(a)
