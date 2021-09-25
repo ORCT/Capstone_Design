@@ -244,29 +244,53 @@ def conv_ser2img(_ser, _img_shape):
             _ = 1
         i += 1
     return ans
-        
+
+def calc_all_ser(_ser):
+    ans = 0
+    for i in _ser:
+        if i.isdigit():
+            ans += int(i)
+    return ans
+
 ### main        
 
-a = load_image("output11.png", 'w')
+a = load_image("input8.png", 'b')
 a = cv2.flip(a, 1)
 
 print(a.shape)
 ser = conv_img2ser(a)
+all_num = calc_all_ser(ser)
+
+print(all_num, a.shape[0] * a.shape[1])
+print(f"사용률: (출력 전체 step: {all_num}) / (이미지 전체 step: {a.shape[0] * a.shape[1]}) = {all_num / a.shape[0] / a.shape[1]}")
+
 print(ser)
 img = conv_ser2img(ser, a.shape)
 
-ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
+#ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
+
+
 
 cv2.imwrite("test.png", a)
 cv2.imwrite("test_conv.png", a)
 
 if __name__ == "__main__":
-    port = 'COM12'  # 변동가능
+    port = 'COM7'  # 변동가능
     ard = serial.Serial(port, 9600)
     time.sleep(2)
+    
+    now_num = 0
+    start_time = time.time()
 
+    
     for i in ser:
         if list(pyautogui.position()) != [0, 0]:
             printer.interact_ser(i, ard)
+        
+        if i.isdigit():
+            now_num += int(i)
+            print(f"percent: {round(now_num / all_num * 100, 2)}%, estimated: {round((all_num - now_num) * 0.012 , 2)}s")
 
+    print((all_num) / (time.time() - start_time))
+    print((time.time() - start_time) / (all_num))
     ard.close()
