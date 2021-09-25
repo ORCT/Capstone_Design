@@ -1,71 +1,46 @@
-import printer
 import cv2
 import numpy as np
+from collections import deque
+import printer
 import serial
 import time
 import pyautogui
-from collections import deque
 
-n = '11'
-
-image = cv2.imread("input" + n + ".png", cv2.IMREAD_GRAYSCALE)
-image = 255 - image
-img_y, img_x = image.shape
-print(img_x, img_y)
-
-a = 2000
-h = 130
-y = 39
-
-image = cv2.resize(image, dsize=(0, 0), fx=y / img_y, fy=y / img_y, interpolation=cv2.INTER_LINEAR)
-img_y, img_x = image.shape
-x = img_x
-Y = int(a * y / (h - y))
-X = int(x * (Y + a) / a)
-print(X, Y)
-print(img_x, img_y)
-
-""" 
-if X >= 195: # 제한 크기
-    raise Exception("X-axis limit")
- """
-
-p1 = (0, 0)
-p2 = (0,    X)
-p3 = (Y, X // 2 - img_x // 2)
-p4 = (Y, X // 2 + img_x // 2)
-name = printer.bilinear_interpolate(image, p1, p2, p3, p4)
-_, name = cv2.threshold(name, 100, 255, cv2.THRESH_BINARY)
-name = cv2.GaussianBlur(name, (3,3), 0)
-_, img = cv2.threshold(name, 1, 255, cv2.THRESH_BINARY)
-
-img = cv2.resize(img, (0, 0), fx=1, fy=1)
-_, img = cv2.threshold(img, 80, 255, cv2.THRESH_BINARY)
-cv2.imwrite("output" + n + ".png", img)
-
+img = printer.load_image("test/input8.png", 'b')
 img = cv2.flip(img, 1)
+_, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
 
-serial_deque = printer.conv_img_to_ser_deque(img)
+print(img.shape)
+ser = printer.conv_img2ser(img)
+all_num = printer.calc_all_ser(ser)
 
-serial_deque.appendleft('`')
-serial_deque.appendleft('5')
-serial_deque.appendleft('r')
-serial_deque.appendleft('`')
-serial_deque.appendleft('i')
+print(all_num, img.shape[0] * img.shape[1])
+print(f"사용률: (출력 전체 step: {all_num}) / (이미지 전체 step: {img.shape[0] * img.shape[1]}) = {all_num / img.shape[0] / img.shape[1]}")
 
-def interact_ser(_str, _ard):
-    _ard.write(_str.encode())
-    tmp = _ard.readline()
-    print(tmp.decode())
-    
+print(ser)
+conv_img = printer.conv_ser2img(ser, img.shape)
+
+ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
+
+cv2.imwrite("test/test.png", img)
+cv2.imwrite("test/test_conv.png", conv_img)
 
 if __name__ == "__main__":
-    port = 'COM12'  # 변동가능
+    port = 'COM7'  # 변동가능
     ard = serial.Serial(port, 9600)
     time.sleep(2)
+    
+    now_num = 0
+    start_time = time.time()
 
-    for i in serial_deque:
+    for i in ser:
         if list(pyautogui.position()) != [0, 0]:
-            interact_ser(i, ard)
+            printer.interact_ser(i, ard)
+        
+        if i.isdigit():
+            now_num += int(i)
+            print(f"percent: {round(now_num / all_num * 100, 2)}%, estimated: {round((all_num - now_num) * 0.012 , 2)}s")
 
+    print((all_num) / (time.time() - start_time))
+    print((time.time() - start_time) / (all_num))
     ard.close()
