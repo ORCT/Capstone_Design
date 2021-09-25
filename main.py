@@ -6,7 +6,7 @@ import time
 import pyautogui
 from collections import deque
 
-n = '8'
+n = '11'
 
 image = cv2.imread("input" + n + ".png", cv2.IMREAD_GRAYSCALE)
 image = 255 - image
@@ -25,8 +25,10 @@ X = int(x * (Y + a) / a)
 print(X, Y)
 print(img_x, img_y)
 
+""" 
 if X >= 195: # 제한 크기
     raise Exception("X-axis limit")
+ """
 
 p1 = (0, 0)
 p2 = (0,    X)

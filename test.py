@@ -247,14 +247,15 @@ def conv_ser2img(_ser, _img_shape):
         
 ### main        
 
-a = load_image("input8.png", 'b')
+a = load_image("output11.png", 'w')
+a = cv2.flip(a, 1)
 
 print(a.shape)
 ser = conv_img2ser(a)
 print(ser)
 img = conv_ser2img(ser, a.shape)
 
-ser = ['i', '`', 'r', '5', '`'] + ser
+ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
 
 cv2.imwrite("test.png", a)
 cv2.imwrite("test_conv.png", a)
