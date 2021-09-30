@@ -6,7 +6,9 @@ import serial
 import time
 import pyautogui
 
-img = printer.load_image("test/test2_output.png", 'w')
+X_MAX = 291
+
+img = printer.load_image("test/comb1.png", 'w')
 img = cv2.flip(img, 1)
 _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
 
@@ -17,7 +19,12 @@ print(ser)
 
 conv_img = printer.conv_ser2img(ser, img.shape)
 
-ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
+if img.shape[1] - 20 >= X_MAX:
+    while pyautogui.position() != [0, 0]:
+        _ = 1
+        
+
+ser = ['d', '10', '`', 'i', '`', 'r', str((X_MAX - img.shape[1]) // 2), '`'] + ser
 all_num = printer.calc_all_ser(ser)
 
 print(all_num, img.shape[0] * img.shape[1])
@@ -32,8 +39,10 @@ if __name__ == "__main__":
     start_time = time.time()
 
     for i in ser:
-        while list(pyautogui.position()) == [0, 0]:
-            _ = 1
+        
+        if i == 'p':
+            while list(pyautogui.position()) == [0, 0]:
+                _ = 1
             
         printer.interact_ser(i, ard)
         

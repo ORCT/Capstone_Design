@@ -19,30 +19,42 @@ def bilinear_interpolate(_np_gray_image, _p1, _p2, _p3, _p4): # p1: ll, p2: lh, 
                 pass
     return ans[:, :, 0]
 
-if __name__ == '__main__':
-    image = cv2.imread(("python/test3.png"), cv2.IMREAD_GRAYSCALE)
-    image = 255 - image
-    img_y, img_x = image.shape
-    print(img_x, img_y)
-
-    a = 2000
+def distort_img(_img):
+    img_y, img_x = _img.shape
+    print("init img shape:", img_x, img_y)
+    
+    a = 1500
     h = 130
     y = 39
-
-    image = cv2.resize(image, dsize=(0, 0), fx=y / img_y, fy=y / img_y, interpolation=cv2.INTER_LINEAR)
-    img_y, img_x = image.shape
+    
+    _img = cv2.resize(_img, dsize=(0, 0), fx=y / img_y, fy=y / img_y, interpolation=cv2.INTER_LINEAR)
+    img_y, img_x = _img.shape
     x = img_x
     Y = int(a * y / (h - y))
     X = int(x * (Y + a) / a)
-    print(X, Y)
-    print(img_x, img_y)
+    print("distorted img shape:", X, Y, img_x, img_y)
 
     p1 = (0, 0)
     p2 = (0,    X)
     p3 = (Y, X // 2 - img_x // 2)
     p4 = (Y, X // 2 + img_x // 2)
-    name = bilinear_interpolate(image, p1, p2, p3, p4)
-    _, name = cv2.threshold(name, 100, 255, cv2.THRESH_BINARY)
-    name = cv2.GaussianBlur(name, (3,3), 0)
-    _, name = cv2.threshold(name, 1, 255, cv2.THRESH_BINARY)
-    cv2.imwrite("python/output3.png", name)
+    _img = bilinear_interpolate(_img, p1, p2, p3, p4)
+    
+    _, _img = cv2.threshold(_img, 100, 255, cv2.THRESH_BINARY)
+    _img = cv2.GaussianBlur(_img, (3,3), 0)
+    _, _img = cv2.threshold(_img, 1, 255, cv2.THRESH_BINARY)
+    return _img
+
+if __name__ == '__main__':
+    path = "test/test5.png"
+    image = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+    _, image = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY)
+    #cv2.imwrite(path[:-4] + "_gray.png", image)
+    ans = distort_img(image)
+    
+    
+    ans = cv2.resize(ans, dsize=(0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
+    _, ans = cv2.threshold(ans, 11, 255, cv2.THRESH_BINARY)
+    
+    cv2.imwrite(path[:-4] + "_output.png", ans)
+    print(ans.shape)

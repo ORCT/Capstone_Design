@@ -28,6 +28,7 @@ const int maxChar = 15;
 char charVal[maxChar];
 int charIter = 0;
 
+int push_flag = 0;
 
 void setup()
 {
@@ -87,11 +88,13 @@ void processSerial()
     if(decision == 'p')
     {
         digitalWrite(SOLENOID_PIN, HIGH);
+        push_flag = 1;
         delay(200);
     }
     else if(decision == 'P')
     {
         digitalWrite(SOLENOID_PIN, LOW);
+        push_flag = 0;
         delay(70);
     }
     else if(decision == 'd')
@@ -129,9 +132,15 @@ void ctrl_motor(int motor_dir_pin, int motor_step_pin, int motor_dir, int motor_
     for(int i = 0; i < motor_step * 4; ++i)
     {
         digitalWrite(motor_step_pin, HIGH);
-        delayMicroseconds(MOTOR_DELAY);
+        if(push_flag == 0)
+        {delayMicroseconds(800);}
+        else
+        {delayMicroseconds(1500);}
         digitalWrite(motor_step_pin, LOW);
-        delayMicroseconds(MOTOR_DELAY);
+        if(push_flag == 0)
+        {delayMicroseconds(800);}
+        else
+        {delayMicroseconds(1500);}
     }
 }
 
@@ -139,14 +148,14 @@ void ctrl_Y_motor_d(int motor_dir_pin1, int motor_dir_pin2, int motor_step_pin1,
 {
     digitalWrite(motor_dir_pin1, HIGH);
     digitalWrite(motor_dir_pin2, LOW);
-    for(int i = 0; i < motor_step * 3; ++i)
+    for(int i = 0; i < motor_step * 2; ++i)
     {
         digitalWrite(motor_step_pin1, HIGH);
         digitalWrite(motor_step_pin2, HIGH);
-        delayMicroseconds(MOTOR_DELAY * 2);
+        delayMicroseconds(700);
         digitalWrite(motor_step_pin1, LOW);
         digitalWrite(motor_step_pin2, LOW);
-        delayMicroseconds(MOTOR_DELAY * 2);
+        delayMicroseconds(700);
     }
 }
 
@@ -154,14 +163,14 @@ void ctrl_Y_motor_u(int motor_dir_pin1, int motor_dir_pin2, int motor_step_pin1,
 {
     digitalWrite(motor_dir_pin1, LOW);
     digitalWrite(motor_dir_pin2, HIGH);
-    for(int i = 0; i < motor_step * 3; ++i)
+    for(int i = 0; i < motor_step * 2; ++i)
     {
         digitalWrite(motor_step_pin1, HIGH);
         digitalWrite(motor_step_pin2, HIGH);
-        delayMicroseconds(MOTOR_DELAY * 2);
+        delayMicroseconds(700);
         digitalWrite(motor_step_pin1, LOW);
         digitalWrite(motor_step_pin2, LOW);
-        delayMicroseconds(MOTOR_DELAY * 2);
+        delayMicroseconds(700);
     }
 }
 
@@ -176,7 +185,6 @@ void act_limit()
         }
         else
         {
-            ctrl_motor(X_DIR_PIN, X_STEP_PIN, HIGH, 30);
             SOL_init = 1;
         }
     }
