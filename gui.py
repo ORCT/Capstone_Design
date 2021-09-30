@@ -5,12 +5,12 @@ import os
 import cv2
 import printer
 import serial
-from printer.serial_test import interact_ser
 import threading
+import time
 
 root = tkinter.Tk()
 root.title("Printer")
-root.geometry("300x300")
+root.geometry("210x350")
 
 
 try:
@@ -29,9 +29,9 @@ global_state = 0 # basic state
 global_deque = deque() # serial deque
 global_current_process = 0
 global_all_process = 0
-global_thread = 0
+global_thread0 = 0
 
-def print_deque():
+def print_deque0():
     global global_port
     global global_ard
     global global_X_MAX
@@ -81,10 +81,10 @@ def play_pause_print():
     global global_deque
     global global_current_process
     global global_all_process
-    global global_thread
+    global global_thread0
     if global_state == 0:
         
-        global_thread = threading.Thread(target=print_deque)
+        global_thread0 = threading.Thread(target=print_deque0)
         
         print_state_txt.delete("1.0","end")
         print_state_txt.insert(tkinter.END, "image loading...")
@@ -112,8 +112,8 @@ def play_pause_print():
             print_state_txt.insert(tkinter.END, "image load end")
 
         global_state = 1
-        global_thread.daemon = True
-        global_thread.start()
+        global_thread0.daemon = True
+        global_thread0.start()
             
         
         
@@ -135,9 +135,9 @@ def stop_print():
     global global_deque
     global global_current_process
     global global_all_process
-    global global_thread
+    global global_thread0
     if global_state == 1 or global_state == 2:
-        global_thread = 0
+        global_thread0 = 0
         global_state = 0
         global_deque = deque()
         global_current_process = 0
@@ -146,12 +146,51 @@ def stop_print():
         percent_txt.delete("1.0","end")
         print_state_txt.delete("1.0","end")
         print_state_txt.insert(tkinter.END, "init")
+        
+def steer():
+    global global_port
+    global global_ard
+    global global_X_MAX
+    global global_state
+    global global_deque
+    global global_current_process
+    global global_all_process
+    global global_thread0
+    
+    capture = cv2.VideoCapture(0)
+    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+    steer_deque = deque([])
+    n = 10
+
+    while cv2.waitKey(33) != ord('q'):
+        tmp = printer.capture_delta(capture)
+        if len(steer_deque) == 0:
+            for i in range(10):
+                steer_deque.append(tmp)
+        
+        steer_deque.append(tmp)
+        steer_deque.popleft()
+        ma_delta = int(sum(steer_deque) / len(steer_deque))
+        
+        if ma_delta < 0:
+            printer.interact_ser('-' + str(ma_delta) + '`')
+        elif ma_delta > 0:
+            printer.interact_ser('+' + str(ma_delta) + '`')
+        else: 
+            printer.interact_ser('f' + str(ma_delta) + '`')
+            printer.interact_ser('!steering end`', global_ard)
+            time.sleep(2)
+            break
+
+    capture.release()
+    cv2.destroyAllWindows()
 
 
 # button init
 
 printer_frame = tkinter.ttk.Labelframe(root, text='printer option')
-printer_frame.place(x=5, y=5, width=200, height=280)
+printer_frame.place(x=5, y=5, width=200, height=340)
 
 play_pause_btn = tkinter.Button(root, text="print play/pause", command=play_pause_print)
 play_pause_btn.place(x=10, y=70, width=190, height=40)
@@ -159,6 +198,8 @@ play_pause_btn.place(x=10, y=70, width=190, height=40)
 stop_btn = tkinter.Button(root, text="print stop", command=stop_print)
 stop_btn.place(x=10, y=110, width=190, height=40)
 
+steer_btn = tkinter.Button(root, text="steer", command=steer)
+steer_btn.place(x=10, y=300, width=190, height=40)
 
 # checkbox & label init
 
@@ -193,5 +234,8 @@ print_state_label.place(x=10, y= 240, width=190, height=20)
 print_state_txt = tkinter.Text(root)
 print_state_txt.pack()
 print_state_txt.place(x=10, y=260, width=190, height=20)
+
+steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
+steer_label.place(x=10, y= 280, width=190, height=20)
 
 root.mainloop()
