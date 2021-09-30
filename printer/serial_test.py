@@ -8,7 +8,7 @@ def interact_ser(_str, _ard):
         while tmp == "":
             tmp = _ard.readline()
         print(tmp.decode())
-    
+        return tmp
 
 
 if __name__ == "__main__":
