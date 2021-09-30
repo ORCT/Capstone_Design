@@ -6,27 +6,25 @@ import serial
 import time
 import pyautogui
 
-img = printer.load_image("test/input8.png", 'b')
+img = printer.load_image("test/test2_output.png", 'w')
 img = cv2.flip(img, 1)
 _, img = cv2.threshold(img, 100, 255, cv2.THRESH_BINARY)
 
 print(img.shape)
 ser = printer.conv_img2ser(img)
+
+print(ser)
+
+conv_img = printer.conv_ser2img(ser, img.shape)
+
+ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
 all_num = printer.calc_all_ser(ser)
 
 print(all_num, img.shape[0] * img.shape[1])
 print(f"사용률: (출력 전체 step: {all_num}) / (이미지 전체 step: {img.shape[0] * img.shape[1]}) = {all_num / img.shape[0] / img.shape[1]}")
 
-print(ser)
-conv_img = printer.conv_ser2img(ser, img.shape)
-
-ser = ['d', '10', '`', 'i', '`', 'r', '5', '`'] + ser
-
-cv2.imwrite("test/test.png", img)
-cv2.imwrite("test/test_conv.png", conv_img)
-
 if __name__ == "__main__":
-    port = 'COM7'  # 변동가능
+    port = 'COM12'  # 변동가능
     ard = serial.Serial(port, 9600)
     time.sleep(2)
     
@@ -34,8 +32,10 @@ if __name__ == "__main__":
     start_time = time.time()
 
     for i in ser:
-        if list(pyautogui.position()) != [0, 0]:
-            printer.interact_ser(i, ard)
+        while list(pyautogui.position()) == [0, 0]:
+            _ = 1
+            
+        printer.interact_ser(i, ard)
         
         if i.isdigit():
             now_num += int(i)
