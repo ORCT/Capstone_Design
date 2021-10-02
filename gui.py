@@ -22,7 +22,7 @@ except:
 file_len = len(file_list)
 
 
-global_port = "COM11"
+global_port = "COM12"
 global_ard = serial.Serial(global_port, 9600)
 global_X_MAX = 291
 global_state = 0 # basic state
@@ -83,9 +83,6 @@ def play_pause_print():
     global global_all_process
     global global_thread0
     if global_state == 0:
-        
-        global_thread0 = threading.Thread(target=print_deque0)
-        
         print_state_txt.delete("1.0","end")
         print_state_txt.insert(tkinter.END, "image loading...")
         
@@ -99,9 +96,12 @@ def play_pause_print():
             
         img = cv2.flip(img, 1)
         
+        print(img.shape)
+        
         if img.shape[1] - 20 >= global_X_MAX:
             print_state_txt.delete("1.0","end")
             print_state_txt.insert(tkinter.END, "image is too big!")
+            global_state = 0
             
         else:
             global_deque = deque(['d', '10', '`', 'i', '`', 'r', str((global_X_MAX - img.shape[1]) // 2), '`'] + printer.conv_img2ser(img))
@@ -110,10 +110,11 @@ def play_pause_print():
             
             print_state_txt.delete("1.0","end")
             print_state_txt.insert(tkinter.END, "image load end")
-
-        global_state = 1
-        global_thread0.daemon = True
-        global_thread0.start()
+            
+            global_thread0 = threading.Thread(target=print_deque0)
+            global_state = 1
+            global_thread0.daemon = True
+            global_thread0.start()
             
         
         
@@ -157,32 +158,54 @@ def steer():
     global global_all_process
     global global_thread0
     
-    capture = cv2.VideoCapture(0)
+    capture = cv2.VideoCapture(1)
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-    steer_deque = deque([])
-    n = 10
-
+    tmp=deque([])
     while cv2.waitKey(33) != ord('q'):
-        tmp = printer.capture_delta(capture)
-        if len(steer_deque) == 0:
-            for i in range(10):
-                steer_deque.append(tmp)
+        try:
+            ret, frame = capture.read()
+            img,ROI_img,delta = printer.conv_img_to_delta(frame)
+            tmp.append(delta)
+            if len(tmp)>10:
+                tmp.popleft()
+            delta = int(sum(tmp)/len(tmp))
+            if len(tmp)>=10:
+                #if abs(delta) < 2:
+                #    delta =0
+                serial_deque = deque([])
+                if delta < 0:
+                    delta = abs(delta)
+                    str_delta = list(str(delta))
+                    serial_deque = deque(['-']+str_delta+['`'])
+                elif delta == 0:
+                    str_delta = list(str(delta))
+                    serial_deque = deque(['f']+str_delta+['`'])
+                else:
+                    str_delta = list(str(delta))
+                    serial_deque = deque(['+']+str_delta+['`'])
+                for i in serial_deque:
+                    printer.interact_ser(i,global_ard)
+                print('steer value', delta)
+            cv2.imshow("VideoFrame", img)
+            cv2.imshow('ROI',ROI_img)
+        except:
+            continue
+            #delta = -delta
+            #if delta < 0:
+            #    delta = abs(delta)
+            #    str_delta = list(str(delta))
+            #    serial_deque = deque(['-']+str_delta+['`'])
+            #elif delta == 0:
+            #    str_delta = list(str(delta))
+            #    serial_deque = deque(['f']+str_delta+['`'])
+            #else:
+            #    str_delta = list(str(delta))
+            #    serial_deque = deque(['+']+str_delta+['`'])
+            #    for i in serial_deque:
+            #        interact_ser(i,ard)
+            #print('steer value', delta)
         
-        steer_deque.append(tmp)
-        steer_deque.popleft()
-        ma_delta = int(sum(steer_deque) / len(steer_deque))
-        
-        if ma_delta < 0:
-            printer.interact_ser('-' + str(ma_delta) + '`')
-        elif ma_delta > 0:
-            printer.interact_ser('+' + str(ma_delta) + '`')
-        else: 
-            printer.interact_ser('f' + str(ma_delta) + '`')
-            printer.interact_ser('!steering end`', global_ard)
-            time.sleep(2)
-            break
-
     capture.release()
     cv2.destroyAllWindows()
 
@@ -198,8 +221,8 @@ play_pause_btn.place(x=10, y=70, width=190, height=40)
 stop_btn = tkinter.Button(root, text="print stop", command=stop_print)
 stop_btn.place(x=10, y=110, width=190, height=40)
 
-steer_btn = tkinter.Button(root, text="steer", command=steer)
-steer_btn.place(x=10, y=300, width=190, height=40)
+# steer_btn = tkinter.Button(root, text="steer", command=steer)
+# steer_btn.place(x=10, y=300, width=190, height=40)
 
 # checkbox & label init
 
@@ -235,7 +258,7 @@ print_state_txt = tkinter.Text(root)
 print_state_txt.pack()
 print_state_txt.place(x=10, y=260, width=190, height=20)
 
-steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
-steer_label.place(x=10, y= 280, width=190, height=20)
+# steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
+# steer_label.place(x=10, y= 280, width=190, height=20)
 
 root.mainloop()

@@ -1,3 +1,6 @@
+import serial
+import time
+from collections import deque
 import cv2
 import numpy as np
 #from picamera import PiCamera
@@ -128,15 +131,67 @@ def conv_img_to_delta(image):
     #weight img
     temp = weighted_img(temp,temp1)
     result = weighted_img(image,temp)
-    result1 = weighted_img(ROI_img, temp)
+    #result = weighted_img(image,hough_img)
 
     # get steering value(delta)
     row_delta = get_steering_value(vp,image.shape[0],image.shape[1])
-    return result,result1,int(row_delta)
+    return result,ROI_img,int(row_delta)
 
-def capture_delta(_capture):
-    _, _frame = _capture.read()
-    _, _, ans = conv_img_to_delta(_frame)
-    return ans
+def interact_ser(_str, _ard):
+    _ard.write(_str.encode())
+    tmp = _ard.readline()
+    print(tmp.decode())
 
-
+capture = cv2.VideoCapture(1)
+capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
+capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
+port = 'COM15'
+ard = serial.Serial(port,9600)
+tmp=deque([])
+while cv2.waitKey(33) != ord('q'):
+    try:
+        ret, frame = capture.read()
+        img,ROI_img,delta = conv_img_to_delta(frame)
+        tmp.append(delta)
+        if len(tmp)>10:
+            tmp.popleft()
+        delta = int(sum(tmp)/len(tmp))
+        if len(tmp)>=10:
+            #if abs(delta) < 2:
+            #    delta =0
+            serial_deque = deque([])
+            if delta < 0:
+                delta = abs(delta)
+                str_delta = list(str(delta))
+                serial_deque = deque(['-']+str_delta+['`'])
+            elif delta == 0:
+                str_delta = list(str(delta))
+                serial_deque = deque(['f']+str_delta+['`'])
+            else:
+                str_delta = list(str(delta))
+                serial_deque = deque(['+']+str_delta+['`'])
+            for i in serial_deque:
+                interact_ser(i,ard)
+            print('steer value', delta)
+        cv2.imshow("VideoFrame", img)
+        cv2.imshow('ROI',ROI_img)
+    except:
+        continue
+        #delta = -delta
+        #if delta < 0:
+        #    delta = abs(delta)
+        #    str_delta = list(str(delta))
+        #    serial_deque = deque(['-']+str_delta+['`'])
+        #elif delta == 0:
+        #    str_delta = list(str(delta))
+        #    serial_deque = deque(['f']+str_delta+['`'])
+        #else:
+        #    str_delta = list(str(delta))
+        #    serial_deque = deque(['+']+str_delta+['`'])
+        #    for i in serial_deque:
+        #        interact_ser(i,ard)
+        #print('steer value', delta)
+    
+capture.release()
+cv2.destroyAllWindows()
+ard.close()

@@ -43,6 +43,10 @@ def distort_img(_img):
     _, _img = cv2.threshold(_img, 100, 255, cv2.THRESH_BINARY)
     _img = cv2.GaussianBlur(_img, (3,3), 0)
     _, _img = cv2.threshold(_img, 1, 255, cv2.THRESH_BINARY)
+    
+    _img = cv2.resize(_img, dsize=(0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
+    _, _img = cv2.threshold(_img, 11, 255, cv2.THRESH_BINARY)
+
     return _img
 
 if __name__ == '__main__':
@@ -51,10 +55,6 @@ if __name__ == '__main__':
     _, image = cv2.threshold(image, 100, 255, cv2.THRESH_BINARY)
     #cv2.imwrite(path[:-4] + "_gray.png", image)
     ans = distort_img(image)
-    
-    
-    ans = cv2.resize(ans, dsize=(0, 0), fx=0.5, fy=0.5, interpolation=cv2.INTER_LINEAR)
-    _, ans = cv2.threshold(ans, 11, 255, cv2.THRESH_BINARY)
     
     cv2.imwrite(path[:-4] + "_output.png", ans)
     print(ans.shape)
