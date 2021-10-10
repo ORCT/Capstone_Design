@@ -22,7 +22,7 @@ except:
 file_len = len(file_list)
 
 
-global_port = "COM12"
+global_port = "COM11"
 global_ard = serial.Serial(global_port, 9600)
 global_X_MAX = 291
 global_state = 0 # basic state
@@ -120,7 +120,7 @@ def play_pause_print():
         
     elif global_state == 1:
         print_state_txt.delete("1.0","end")
-        print_state_txt.insert(tkinter.END, "pasue")
+        print_state_txt.insert(tkinter.END, "pause")
         global_state = 2
         
     elif global_state == 2:
@@ -221,8 +221,8 @@ play_pause_btn.place(x=10, y=70, width=190, height=40)
 stop_btn = tkinter.Button(root, text="print stop", command=stop_print)
 stop_btn.place(x=10, y=110, width=190, height=40)
 
-# steer_btn = tkinter.Button(root, text="steer", command=steer)
-# steer_btn.place(x=10, y=300, width=190, height=40)
+steer_btn = tkinter.Button(root, text="steer", command=steer)
+steer_btn.place(x=10, y=300, width=190, height=40)
 
 # checkbox & label init
 
@@ -258,7 +258,7 @@ print_state_txt = tkinter.Text(root)
 print_state_txt.pack()
 print_state_txt.place(x=10, y=260, width=190, height=20)
 
-# steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
-# steer_label.place(x=10, y= 280, width=190, height=20)
+steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
+steer_label.place(x=10, y= 280, width=190, height=20)
 
 root.mainloop()
