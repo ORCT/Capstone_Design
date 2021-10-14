@@ -7,10 +7,11 @@ import printer
 import serial
 import threading
 import time
+import turtle
 
 root = tkinter.Tk()
 root.title("Printer")
-root.geometry("210x350")
+root.geometry("525x350")
 
 
 try:
@@ -30,6 +31,9 @@ global_deque = deque() # serial deque
 global_current_process = 0
 global_all_process = 0
 global_thread0 = 0
+global_serial_command = ''
+global_serial_number = 0
+global_serial_direction = 3
 
 def print_deque0():
     global global_port
@@ -39,6 +43,9 @@ def print_deque0():
     global global_deque
     global global_current_process
     global global_all_process
+    global global_serial_command
+    global global_serial_number
+    global global_serial_direction
     while len(global_deque) != 0:
         if global_deque[0] == 'p' and global_state == 2:
             while global_state != 1:
@@ -56,16 +63,23 @@ def print_deque0():
             serial_monitor_txt.delete("1.0","end")
             serial_monitor_txt.insert(tkinter.END, output[:-2])
         
+        if tmp.isalpha():
+            global_serial_command = tmp
+        
         if tmp.isdigit():
+            global_serial_number = int(tmp)
             global_current_process += int(tmp)
             
             percent_txt.delete("1.0","end")
             percent_txt.insert(tkinter.END, f"{round(global_current_process / global_all_process * 100, 2)}%")
+            
+        if tmp == '`':
+            draw_return = draw(global_serial_command, global_serial_number, global_serial_direction)
+            if draw_return != -1:
+                global_serial_direction = draw_return
 
     stop_print()
     print("thread end")
-
-
 
 
 combobox1_str = tkinter.StringVar()
@@ -82,6 +96,9 @@ def play_pause_print():
     global global_current_process
     global global_all_process
     global global_thread0
+    global global_serial_command
+    global global_serial_number
+    global global_serial_direction
     if global_state == 0:
         print_state_txt.delete("1.0","end")
         print_state_txt.insert(tkinter.END, "image loading...")
@@ -111,12 +128,14 @@ def play_pause_print():
             print_state_txt.delete("1.0","end")
             print_state_txt.insert(tkinter.END, "image load end")
             
+            t.speed(10)
+            t.pensize(0.5)
+            global_serial_direction = 3
+            
             global_thread0 = threading.Thread(target=print_deque0)
             global_state = 1
             global_thread0.daemon = True
             global_thread0.start()
-            
-        
         
     elif global_state == 1:
         print_state_txt.delete("1.0","end")
@@ -137,6 +156,9 @@ def stop_print():
     global global_current_process
     global global_all_process
     global global_thread0
+    global global_serial_command
+    global global_serial_number
+    global global_serial_direction
     if global_state == 1 or global_state == 2:
         global_thread0 = 0
         global_state = 0
@@ -147,6 +169,9 @@ def stop_print():
         percent_txt.delete("1.0","end")
         print_state_txt.delete("1.0","end")
         print_state_txt.insert(tkinter.END, "init")
+        t.reset()
+        t.penup()
+        t.goto(-96, 120)
         
 def steer():
     global global_port
@@ -157,6 +182,9 @@ def steer():
     global global_current_process
     global global_all_process
     global global_thread0
+    global global_serial_command
+    global global_serial_number
+    global global_serial_direction
     
     capture = cv2.VideoCapture(1)
     capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
@@ -209,11 +237,67 @@ def steer():
     capture.release()
     cv2.destroyAllWindows()
 
+def draw(_serial_command, _step, _direction_macro):
+    t.color('black')
+    if _serial_command == 'r':
+        if _direction_macro == 0:
+            t.forward(_step)
+        elif _direction_macro == 1:
+            t.right(180)
+            t.forward(_step)
+        elif _direction_macro == 2:
+            t.right(90)
+            t.forward(_step)
+        elif _direction_macro == 3:
+            t.left(90)
+            t.forward(_step)
+        return 0
+
+    elif _serial_command == 'l':
+        if _direction_macro == 0:
+            t.right(180)
+            t.forward(_step)
+        elif _direction_macro == 1:
+            t.forward(_step)
+        elif _direction_macro == 2:
+            t.left(90)
+            t.forward(_step)
+        elif _direction_macro == 3:
+            t.right(90)
+            t.forward(_step)
+        return 1
+    
+    elif _serial_command == 'd':
+        if _direction_macro == 0:
+            t.right(90)
+            t.forward(_step)
+        elif _direction_macro == 1:
+            t.left(90)
+            t.forward(_step)
+        elif _direction_macro == 2:
+            t.right(180)
+            t.forward(_step)
+        elif _direction_macro == 3:
+            t.forward(_step)
+        return 3
+    
+    elif _serial_command == 'p':
+        t.pendown()
+        return -1
+    
+    elif _serial_command == 'P':
+        t.penup()
+        return -1
+
 
 # button init
 
 printer_frame = tkinter.ttk.Labelframe(root, text='printer option')
 printer_frame.place(x=5, y=5, width=200, height=340)
+
+canvas = tkinter.Canvas(root)
+canvas.pack()
+canvas.place(x=215, y=5, width=295, height=340)
 
 play_pause_btn = tkinter.Button(root, text="print play/pause", command=play_pause_print)
 play_pause_btn.place(x=10, y=70, width=190, height=40)
@@ -261,4 +345,8 @@ print_state_txt.place(x=10, y=260, width=190, height=20)
 steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
 steer_label.place(x=10, y= 280, width=190, height=20)
 
+t = turtle.RawTurtle(canvas)
+t.pensize(0.5)
+t.penup()
+t.goto(-96, 120)
 root.mainloop()
