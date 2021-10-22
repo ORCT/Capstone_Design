@@ -8,6 +8,7 @@ import serial
 import threading
 import time
 import turtle
+import steer
 
 root = tkinter.Tk()
 root.title("Printer")
@@ -186,56 +187,7 @@ def steer():
     global global_serial_number
     global global_serial_direction
     
-    capture = cv2.VideoCapture(1)
-    capture.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    capture.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-    tmp=deque([])
-    while cv2.waitKey(33) != ord('q'):
-        try:
-            ret, frame = capture.read()
-            img,ROI_img,delta = printer.conv_img_to_delta(frame)
-            tmp.append(delta)
-            if len(tmp)>10:
-                tmp.popleft()
-            delta = int(sum(tmp)/len(tmp))
-            if len(tmp)>=10:
-                #if abs(delta) < 2:
-                #    delta =0
-                serial_deque = deque([])
-                if delta < 0:
-                    delta = abs(delta)
-                    str_delta = list(str(delta))
-                    serial_deque = deque(['-']+str_delta+['`'])
-                elif delta == 0:
-                    str_delta = list(str(delta))
-                    serial_deque = deque(['f']+str_delta+['`'])
-                else:
-                    str_delta = list(str(delta))
-                    serial_deque = deque(['+']+str_delta+['`'])
-                for i in serial_deque:
-                    printer.interact_ser(i,global_ard)
-                print('steer value', delta)
-            cv2.imshow("VideoFrame", img)
-            cv2.imshow('ROI',ROI_img)
-        except:
-            continue
-            #delta = -delta
-            #if delta < 0:
-            #    delta = abs(delta)
-            #    str_delta = list(str(delta))
-            #    serial_deque = deque(['-']+str_delta+['`'])
-            #elif delta == 0:
-            #    str_delta = list(str(delta))
-            #    serial_deque = deque(['f']+str_delta+['`'])
-            #else:
-            #    str_delta = list(str(delta))
-            #    serial_deque = deque(['+']+str_delta+['`'])
-            #    for i in serial_deque:
-            #        interact_ser(i,ard)
-            #print('steer value', delta)
-        
-    capture.release()
-    cv2.destroyAllWindows()
+    steer.main(global_ard, global_port)
 
 def draw(_serial_command, _step, _direction_macro):
     t.color('black')
@@ -342,7 +294,7 @@ print_state_txt = tkinter.Text(root)
 print_state_txt.pack()
 print_state_txt.place(x=10, y=260, width=190, height=20)
 
-steer_label = tkinter.Label(root, anchor='w', text='*press q to stop')
+steer_label = tkinter.Label(root, anchor='w', text='*press q to steer stop')
 steer_label.place(x=10, y= 280, width=190, height=20)
 
 t = turtle.RawTurtle(canvas)

@@ -113,7 +113,7 @@ void processSerial()
     }
     else if(decision == 'l')
     {
-         ctrl_motor(X_DIR_PIN, X_STEP_PIN, LOW, tmpInt);
+        ctrl_motor(X_DIR_PIN, X_STEP_PIN, LOW, tmpInt);
     }
     else if(decision == 'i')
     {
