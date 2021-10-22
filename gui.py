@@ -8,7 +8,7 @@ import serial
 import threading
 import time
 import turtle
-import steer
+import steering
 
 root = tkinter.Tk()
 root.title("Printer")
@@ -187,7 +187,7 @@ def steer():
     global global_serial_number
     global global_serial_direction
     
-    steer.main(global_ard, global_port)
+    steering.main(global_ard, global_port)
 
 def draw(_serial_command, _step, _direction_macro):
     t.color('black')
